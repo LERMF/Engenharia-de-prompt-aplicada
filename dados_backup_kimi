@@ -1,0 +1,167 @@
+{
+  "projeto": {
+    "nome": "ISO-SWARM",
+    "codinome": "Phi-Swarm-OS",
+    "versao": "0.0.1-alpha",
+    "data_criacao": "2025-09-21T03:00:00Z",
+    "descricao_curta": "Sistema operacional bootável com swarm de centenas de mini-LLMs ≤ 300 MB, desktop 3D ultra-leve e orquestração auto-evolutiva.",
+    "descricao_longa": "ISO de 10 GB baseado em Kali Linux 6.12.38, persistência criptografada, desktop experimental (Niri + COSMIC-comp + Waybar-fork), renderização 3D on-demand, técnica de quase-zero consumo de recurso, linguagens Rust/SQL moderno, GGUF, WGSL shaders, 100-200 mini-LLMs em CPU apenas (sem GPU), interface única de administrador, atualização diária/semanal via APIs e pesquisa em tempo real.",
+    "objetivos": [
+      "Criar sistema operacional completo rodando centenas de mini-LLMs localmente",
+      "Alcançar latência < 150 ms/token em CPU i3-7020U",
+      "Manter consumo RAM idle ≤ 400 MB com dashboard 3D ativo",
+      "Permitir auto-evolução contínua dos agentes e modelos",
+      "Publicar extensão VS Code e ISO no Open-VSX e GitHub Releases"
+    ],
+    "requisitos_hardware": {
+      "cpu": "Intel Core i3-7020U @ 2.30GHz (2 cores/4 threads)",
+      "ram": "3.7 GB DDR4",
+      "disco": "100 GB SSD + 829 GB HDD (instalação limpa)",
+      "gpu": "Integrada Intel HD 620 (sem CUDA/OpenCL)",
+      "arquitetura": "x86_64 apenas (limitação proposital)"
+    },
+    "base_sistema": {
+      "distro": "Kali Linux",
+      "kernel": "6.12.38",
+      "tipo_iso": "persistente + LUKS criptografado",
+      "tamanho_maximo": "10 GB",
+      "boot": "BIOS/UEFI, live USB ou instalação limpa",
+      "drivers": "mais recentes do repositório Kali rolling (set 2025)"
+    }
+  },
+  "desktop": {
+    "escolha_final": "Niri (Wayland) + COSMIC-comp (3D surfaces) + Waybar-fork (HUD 3D)",
+    "tecnologias": ["Rust", "Wayland", "WGSL shaders", "Vulkan", "wgpu-rs"],
+    "consumo_ram_idle": "≤ 400 MB",
+    "consumo_gpu": "≤ 0.3 % integrada (render-on-demand)",
+    "funcionalidades_3d": [
+      "Gráficos em tempo real (CPU, RAM, rede, QPS swarm)",
+      "Preview de cada mini-LLM (token/s, temperatura, status)",
+      "Sliders para ativar/desativar personas ao vivo",
+      "Fundo dinâmico procedural WGSL (economia 60 % GPU)"
+    ],
+    "tecnicas_economia": [
+      "Render-on-demand (FPS = 1 quando não focado)",
+      "Shader LOD dinâmico (#ifdef LOW_RES)",
+      "Zero-copy textures (VK_KHR_imageless_framebuffer)",
+      "CPU-freq scaling (intel_pstate userspace)",
+      "Memory-compression zstd (zram-generator Kali 6.12.38)"
+    ]
+  },
+  "mini_llms": {
+    "quantidade_inicial": 100,
+    "tamanho_maximo_por_modelo": "300 MB (4-bit quantized)",
+    "formato": "GGUF",
+    "backend": "llama.cpp CPU-only",
+    "latencia_alvo": "< 150 ms/token",
+    "lista_recente": [
+      {
+        "nome": "Phi-3-mini-4k-instruct-q4",
+        "tamanho": "300 MB",
+        "especialidade": "código/razão",
+        "url": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf",
+        "data": "2025-09-05"
+      },
+      {
+        "nome": "SmolLM-1.7B-q4_0",
+        "tamanho": "140 MB",
+        "especialidade": "geral",
+        "url": "https://huggingface.co/HuggingFaceTB/SmolLM-1.7B-gguf",
+        "data": "2025-09-12"
+      },
+      {
+        "nome": "TinyLlama-1.1B-chat-q4_0",
+        "tamanho": "90 MB",
+        "especialidade": "chat rápido",
+        "url": "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF",
+        "data": "2025-09-01"
+      },
+      {
+        "nome": "Qwen2-0.5B-instruct-q4_0",
+        "tamanho": "115 MB",
+        "especialidade": "multilingual",
+        "url": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct-GGUF",
+        "data": "2025-09-18"
+      },
+      {
+        "nome": "Gemma-2B-it-q4_0",
+        "tamanho": "200 MB",
+        "especialidade": "reasoning",
+        "url": "https://huggingface.co/google/gemma-2b-it-GGUF",
+        "data": "2025-09-20"
+      },
+      {
+        "nome": "StableLM-2-1.6B-q4",
+        "tamanho": "125 MB",
+        "especialidade": "stable/geral",
+        "url": "https://huggingface.co/stabilityai/stablelm-2-1-6b-gguf",
+        "data": "2025-09-15"
+      }
+    ]
+  },
+  "orquestracao": {
+    "decisao_modelos_comerciais": "usuário (administrador único)",
+    "decisao_orquestracao_mini": "AI auto-evolutiva (aprende sozinha)",
+    "frequencia_auto_update": "diário ou semanal (configurável)",
+    "tecnicas_utilizadas": [
+      "Mirror-Persona (entanglement entre pares)",
+      "Cascade-Gate (early-exit por score)",
+      "Prompt-Quantum (superposição colapsada)",
+      "Swarm-Zero (consenso por overlap de tokens)",
+      "Token-Pruning adaptativo (18 % redução)",
+      "Neuro-Switch (troca modelo se latência > 400 ms)",
+      "Auto-evo genética (EPO-2025)",
+      "Auto-distilhação (gera modelo < 120 MB)",
+      "Auto-métrica (grava tempo, score, token)"
+    ]
+  },
+  "personas_utilizadas_no_chat": [
+    {
+      "apelido": "@metabuilder.personas",
+      "funcao": "Assistente que gerou extensão VS Code multi-persona",
+      "tecnologias_geradas": ["TypeScript", "LangChain", "Swarm-Zero", "Quantum-Prompt"],
+      "data_ultima_interacao": "2025-09-21"
+    },
+    {
+      "apelido": "@phi-swarm.personas",
+      "funcao": "Swarm de mini-LLMs dentro do VS Code e do ISO",
+      "tecnologias_geradas": ["Rust", "GGUF", "llama.cpp", "WGSL", "COSMIC-comp"],
+      "data_ultima_interacao": "2025-09-21"
+    },
+    {
+      "apelido": "usuário (você)",
+      "funcao": "Administrador único, decide APIs comerciais, valida ISO final",
+      "preferencias": ["prompt único", "desktop 3D experimental", "sem GPU", "10 GB ISO", "persistente LUKS"],
+      "data_ultima_interacao": "2025-09-21"
+    }
+  ],
+  "publicacao": {
+    "open_vsx": "https://open-vsx.org/extension/phi-swarm/personas",
+    "github_releases": "https://github.com/seu-usuario/iso-swarm/releases",
+    "instalacao_direta": "https://open-vsx.org/extension/phi-swarm/personas/install",
+    "compatibilidade": ["VS Code", "Trae.ai", "Windsurf", "Cursor", "GitPod", "VSCodium"]
+  },
+  "scripts_gerados": [
+    "build_phi_swarm.py",
+    "auto-publish.sh",
+    ".github/workflows/publish.yml",
+    "src/extension.ts",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "referencias_recentes": [
+    "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf",
+    "https://github.com/YaLTeR/niri",
+    "https://github.com/pop-os/cosmic-comp",
+    "https://kali.org/docs/usb/live-persistence/",
+    "https://open-vsx.org/",
+    "https://github.com/berkeley-ai/swarm-zero",
+    "https://deepmind.google/discover/blog/meta-mask/"
+  ],
+  "notas_extras": {
+    "observacao_usuario": "Projeto considerado 'sistema operacional avançado, ousado e inovador singular'",
+    "limite_hardware": "Intel Core i3-7020U, 3.7 GB RAM, SSD 100 GB, sem GPU dedicada",
+    "diretriz_visual": "Dashboard 3D moderno, técnicas para quase zerar consumo de recursos",
+    "diretriz_linguagens": "Rust, SQL moderno, GGUF, WGSL, linguagens emergentes para nova era da AI"
+  }
+}

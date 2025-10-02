@@ -1,0 +1,32 @@
+[package]
+name = "swarm-daemon"
+version = "1.0.0"
+edition = "2021"
+authors = ["ISO-SWARM Team"]
+description = "200 mini-LLMs swarm daemon for VS Code extension"
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+llama-cpp-rs = "0.1.75"
+zstd = "0.13"
+memmap2 = "0.9"
+nix = "0.27"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+crossbeam-channel = "0.5"
+rayon = "1.8"
+rustqlite = "0.30"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[[bin]]
+name = "swarm-daemon"
+path = "src/main.rs"
