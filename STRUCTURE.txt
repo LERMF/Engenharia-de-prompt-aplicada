@@ -1,0 +1,21 @@
+iso-swarm/
+├── src/
+│   ├── extension.ts
+│   ├── daemon/
+│   │   ├── Cargo.toml
+│   │   ├── src/main.rs
+│   │   └── schema.sql
+│   └── shaders/
+│       └── waybar_hud.wgsl
+├── .github/
+│   └── workflows/
+│       └── build.yml
+├── tools/
+│   ├── build.sh
+│   ├── dev.sh
+│   ├── Dockerfile
+│   └── install-swarm.sh
+├── models/
+├── package.json
+├── tsconfig.json
+└── README.md
