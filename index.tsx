@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
+import { getHardwareInfo, formatHardwareInfoForPrompt, type HardwareInfo } from './hardwareDetection';
 
 // Per coding guidelines, API key is sourced from process.env.API_KEY.
 // This is assumed to be configured in the build environment.
@@ -66,10 +67,12 @@ const App = () => {
     const [response, setResponse] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [includeHardwareInfo, setIncludeHardwareInfo] = useState(false);
+    const [hardwareInfo, setHardwareInfo] = useState<HardwareInfo | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const workerRef = useRef<Worker | null>(null);
 
-    // Initialize the Web Worker
+    // Initialize the Web Worker and detect hardware
     useEffect(() => {
         workerRef.current = new Worker('fileProcessor.js');
 
@@ -90,6 +93,10 @@ const App = () => {
                     console.warn('Unknown message type from worker:', type);
             }
         };
+
+        // Detect hardware information on mount
+        const hwInfo = getHardwareInfo();
+        setHardwareInfo(hwInfo);
 
         // Cleanup on unmount
         return () => {
@@ -124,6 +131,7 @@ const App = () => {
         setFileProgress({});
         setResponse('');
         setError('');
+        setIncludeHardwareInfo(false);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -165,8 +173,15 @@ const App = () => {
                 },
             }));
 
+            // Append hardware info to prompt if checkbox is checked
+            let finalPrompt = prompt || '';
+            if (includeHardwareInfo && hardwareInfo) {
+                const hwInfo = formatHardwareInfoForPrompt(hardwareInfo);
+                finalPrompt = `${finalPrompt}\n\n${hwInfo}`;
+            }
+
             const contents = [{
-                parts: [...fileParts, { text: prompt || '' }]
+                parts: [...fileParts, { text: finalPrompt }]
             }];
 
             // M-2: This API call structure is correct per the latest @google/genai guidelines.
@@ -264,6 +279,33 @@ const App = () => {
                         rows={4}
                         disabled={isLoading}
                     />
+
+                    {hardwareInfo && (
+                        <div className="hardware-info-section">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={includeHardwareInfo}
+                                    onChange={(e) => setIncludeHardwareInfo(e.target.checked)}
+                                    disabled={isLoading}
+                                />
+                                <span>Include hardware information (CPU-Z style)</span>
+                            </label>
+                            {includeHardwareInfo && (
+                                <div className="hardware-info-display">
+                                    <strong>Detected Hardware:</strong>
+                                    <div className="hardware-details">
+                                        <div>💻 <strong>CPU:</strong> {hardwareInfo.cpu.cores} cores ({hardwareInfo.cpu.architecture})</div>
+                                        <div>🧠 <strong>RAM:</strong> {hardwareInfo.memory.total}</div>
+                                        <div>🎮 <strong>GPU:</strong> {hardwareInfo.gpu.vendor} - {hardwareInfo.gpu.renderer}</div>
+                                        <div>🖥️ <strong>OS:</strong> {hardwareInfo.platform.os} ({hardwareInfo.platform.type})</div>
+                                        <div>🌐 <strong>Browser:</strong> {hardwareInfo.browser.name} {hardwareInfo.browser.version}</div>
+                                        <div>📺 <strong>Display:</strong> {hardwareInfo.screen.resolution} @ {hardwareInfo.screen.pixelRatio}x</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                     
                     <div className="button-group">
                         <button type="submit" disabled={isLoading || (uploadedFiles.length > 0 && !allFilesProcessedOrError)}>
@@ -328,6 +370,12 @@ const styles = `
     .progress-bar { height: 100%; background-color: #4caf50; transition: width 0.3s; }
     .status-text { color: #4caf50; font-weight: 500; }
     .error-text { color: #d9534f; font-weight: 500; }
+    .hardware-info-section { padding: 1rem; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0; }
+    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500; }
+    .checkbox-label input[type="checkbox"] { cursor: pointer; width: 18px; height: 18px; }
+    .hardware-info-display { margin-top: 1rem; padding: 1rem; background-color: white; border-radius: 4px; border: 1px solid #ddd; font-size: 0.9rem; }
+    .hardware-details { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .hardware-details div { padding: 0.25rem 0; }
 `;
 const styleSheet = document.createElement("style");
 styleSheet.innerText = styles;
