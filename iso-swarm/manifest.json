@@ -1,0 +1,128 @@
+{
+  "project": "ISO-SWARM",
+  "version": "1.0.0",
+  "date": "2025-10-02T09:06:13Z",
+  "repo": {
+    "name": "Engenharia-de-prompt-aplicada",
+    "owner": "gersonvida12-hash",
+    "branch": "feat/iso-swarm-v1",
+    "defaultBranch": "main"
+  },
+  "system": {
+    "base": {
+      "os": "Kali Linux",
+      "kernel": "6.12.38",
+      "iso": {
+        "sizeGB": 10,
+        "type": "persistent-live",
+        "luks": false,
+        "sudoPassword": false
+      }
+    },
+    "hardware": {
+      "cpu": "Intel i3-7020U",
+      "ramGB": 3.7,
+      "gpu": {
+        "name": "Intel HD 620",
+        "vramMB": 48
+      }
+    },
+    "desktop": {
+      "compositor": "Niri (Wayland)",
+      "cosmic": "COSMIC-comp 3D surfaces",
+      "waybar": "fork HUD 3D",
+      "renderMode": "render-on-demand",
+      "wgsl": true,
+      "idleRamMB": 400
+    }
+  },
+  "swarm": {
+    "models": 200,
+    "perModelMaxMB": 300,
+    "quantization": "4-bit GGUF",
+    "inference": "llama.cpp CPU-only",
+    "latencyMsPerToken": 150,
+    "cgroup": {
+      "memoryHigh": "1G"
+    },
+    "accessRate": 0.8,
+    "ramReduction": 0.82,
+    "techniques": ["ZSTD-3D", "Access-Map", "MemPool-1G"]
+  },
+  "languages": [
+    { "name": "Rust", "binaryMaxMB": 5 },
+    { "name": "SQLite", "version": "3.46", "vm": "bytecode" },
+    { "name": "GGUF" },
+    { "name": "WGSL" }
+  ],
+  "extension": {
+    "id": "iso-swarm.personas",
+    "type": "Chat Participant",
+    "personas": ["coder", "analyst", "architect", "security", "optimizer"],
+    "daemon": {
+      "lang": "Rust",
+      "socket": "/tmp/iso-swarm.sock",
+      "cgroup": "v2",
+      "autoupdate": "weekly"
+    },
+    "publish": {
+      "registry": "Open-VSX",
+      "ci": ".github/workflows/build.yml"
+    }
+  },
+  "files": {
+    "root": {
+      "package.json": "e800c882e74cd105575659431573a6ec2c9320829803cd28859959098d8acf79",
+      "tsconfig.json": "a08d2182803b4d1c0d35663ce69b40557168d47e4a1d0a18919ecd2f9783679d",
+      "README.md": "f92b7ba3d37d3b80f46712534dcde2104a1f46577c858c97ec484ebe43460011",
+      "STRUCTURE.txt": "57d862ea9a8d19282475e41317d1b9ddd929e1f52f1479de080709ce8438989e",
+      ".github/workflows/build.yml": "b2e832bbc39f972f80d4b9914814fcc5d6faab3ad92d8af9a1b7384ca03da96a",
+      "src/extension.ts": "96488a43e6a9227cc5348cbd9b10f7a4af414b06991ab1e54b85ff10bf651507",
+      "src/daemon/Cargo.toml": "41dc125df9616d3175a7c8edaa7fac3f4e8af48760dbcf6ad8664d290e9cb977",
+      "src/daemon/src/main.rs": "af957198605c98382b0865cf28a390f3d8084aafa6cc3f8d0729f0e5b4b50d92",
+      "src/daemon/schema.sql": "5272467b539a051a4683dfb107ac1d3a94098b2a9c08548265e670bbbc04bf43",
+      "src/shaders/waybar_hud.wgsl": "1d1cdd1f46cfc7b2aad6b2021625904ddfe683cc385848046617e904df4be523",
+      "tools/Dockerfile": "b8270f981b7165d9a2bc333cf2c4fdbd76de5cb83391a988c5c75c0e52819a93",
+      "tools/build.sh": "c91b0465d44477a8e2e1fa691c39e7e800cb2ae1112ffd751ecd7d2743366079",
+      "tools/dev.sh": "84470f89399ddd8bce1dbdcc73c8d59e7ed47339a650430bfd2055b70584a213",
+      "tools/install-swarm.sh": "7071d3bb3c2f55f0a5af45c3aa8ecd532aef6c3b7e5daae86ce745ea0f9fe301"
+    },
+    "iso-swarm": {
+      "package.json": "e800c882e74cd105575659431573a6ec2c9320829803cd28859959098d8acf79",
+      "tsconfig.json": "a08d2182803b4d1c0d35663ce69b40557168d47e4a1d0a18919ecd2f9783679d",
+      "README.md": "f92b7ba3d37d3b80f46712534dcde2104a1f46577c858c97ec484ebe43460011",
+      "STRUCTURE.txt": "57d862ea9a8d19282475e41317d1b9ddd929e1f52f1479de080709ce8438989e",
+      ".github/workflows/build.yml": "b2e832bbc39f972f80d4b9914814fcc5d6faab3ad92d8af9a1b7384ca03da96a",
+      "src/extension.ts": "96488a43e6a9227cc5348cbd9b10f7a4af414b06991ab1e54b85ff10bf651507",
+      "src/daemon/Cargo.toml": "41dc125df9616d3175a7c8edaa7fac3f4e8af48760dbcf6ad8664d290e9cb977",
+      "src/daemon/src/main.rs": "af957198605c98382b0865cf28a390f3d8084aafa6cc3f8d0729f0e5b4b50d92",
+      "src/daemon/schema.sql": "5272467b539a051a4683dfb107ac1d3a94098b2a9c08548265e670bbbc04bf43",
+      "src/shaders/waybar_hud.wgsl": "1d1cdd1f46cfc7b2aad6b2021625904ddfe683cc385848046617e904df4be523",
+      "tools/Dockerfile": "b8270f981b7165d9a2bc333cf2c4fdbd76de5cb83391a988c5c75c0e52819a93",
+      "tools/build.sh": "c91b0465d44477a8e2e1fa691c39e7e800cb2ae1112ffd751ecd7d2743366079",
+      "tools/dev.sh": "84470f89399ddd8bce1dbdcc73c8d59e7ed47339a650430bfd2055b70584a213",
+      "tools/install-swarm.sh": "7071d3bb3c2f55f0a5af45c3aa8ecd532aef6c3b7e5daae86ce745ea0f9fe301"
+    }
+  },
+  "ci": {
+    "workflow": ".github/workflows/build.yml",
+    "openVsx": {
+      "tokenSecret": "OPEN_VSX_TOKEN",
+      "publish": true
+    },
+    "iso": {
+      "dockerfile": "tools/Dockerfile",
+      "output": "output/*.iso",
+      "maxSizeGB": 10
+    }
+  },
+  "usage": {
+    "chatExamples": [
+      "@swarm /coder optimize this algorithm",
+      "@swarm /security analyze vulnerabilities",
+      "@swarm /architect design system",
+      "@swarm /analyst process data"
+    ],
+    "directInstall": "https://open-vsx.org/extension/iso-swarm/personas/install"
+  }
+}

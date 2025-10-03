@@ -1,0 +1,17 @@
+{
+  "agentic_rag": {
+    "retrieval_system": "Vector database for code patterns",
+    "augmentation": "Context-aware code generation",
+    "learning": "Continuous improvement from builds"
+  },
+  "procedural_memory": {
+    "patterns": "Reusable build procedures",
+    "resilience": "Error recovery patterns",
+    "optimization": "Performance learning"
+  },
+  "json_prompting": {
+    "structured": true,
+    "validated": true,
+    "adaptive": true
+  }
+}

@@ -1,213 +1,256 @@
-# ISO-SWARM: 200 Mini-LLMs Swarm for Kali Linux
+# organizador-ia-windows
+Aplicativo Windows para organizar arquivos locais com IA determinística e em nuvem.
 
-🦾 **High-performance AI swarm extension** for VS Code running on Kali Linux 6.12.38 with Intel HD 620.
+## Build custom debian‑ia‑4g‑ptbr‑v1.iso
 
-## 🎯 System Specifications
+### ⚠️ Nota sobre erro de build (Debian wheezy – HTTP 404)
 
-| Component | Specification |
-|-----------|---------------|
-| **Base OS** | Kali Linux 6.12.38, persistent live, no LUKS, no sudo |
-| **Hardware** | Intel i3-7020U, 3.7GB RAM, Intel HD 620 (48MB GPU) |
-| **Desktop** | Niri (Wayland) + COSMIC-comp 3D + Waybar 3D HUD |
-| **Memory Target** | ≤400MB desktop idle, 1GB swarm limit |
-| **Swarm** | 200 mini-LLMs (≤300MB each, 4-bit GGUF) |
-| **Latency** | <150ms/token, CPU-only inference |
-
-## 🚀 Features
-
-- **5 AI Personas**: `@coder`, `@analyst`, `@architect`, `@security`, `@optimizer`
-- **Swarm Consensus**: Token-overlap voting for best responses
-- **Memory Optimization**: 82% RAM reduction via ZSTD-3D + Access-Map + MemPool
-- **Real-time HUD**: 3D Waybar with WGSL shaders showing swarm status
-- **Auto-Update**: Weekly updates via Open-VSX
-- **Performance**: Sub-150ms latency, render-on-demand desktop
-
-## 📁 Project Structure
+Durante a geração da ISO foram criados arquivos de log (`wget-log`, `wget‑log.1`, …) contendo a mensagem:
 
 ```
-iso-swarm/
-├── src/
-│   ├── extension.ts          # VS Code chat participant
-│   ├── daemon/               # Rust swarm daemon
-│   │   ├── Cargo.toml
-│   │   ├── src/main.rs       # Main daemon logic
-│   │   └── schema.sql        # SQLite database schema
-│   └── shaders/
-│       └── waybar_hud.wgsl   # 3D HUD shader
-├── tools/
-│   ├── build.sh              # Auto-build script
-│   ├── Dockerfile            # ISO builder
-│   └── install-swarm.sh      # System installer
-├── .github/workflows/
-│   └── build.yml             # CI/CD pipeline
-├── models/                   # GGUF model storage
-├── package.json              # Extension manifest
-├── tsconfig.json             # TypeScript config
-└── README.md
+ERROR 404: Not Found – http://ftp.debian.org/debian/dists/wheezy/Release
 ```
 
-## 🛠️ Quick Start
+#### Causa
+* `wheezy` (Debian 7) foi movido para o **archive.debian.org**; os mirrors atuais não o servem mais.
 
-### 1. Build Extension
+#### Solução imediata
+1. Substituir o mirror por `http://archive.debian.org/debian` nos arquivos de `sources.list` usados pelo live‑build.  
+2. Desabilitar a verificação de validade dos arquivos *Release* (`Acquire::Check-Valid-Until "false"`).  
+3. Executar `apt-get update` dentro do chroot.
 
-```bash
-git clone <this-repo>
-cd iso-swarm
-chmod +x tools/build.sh
-export OVSX_PAT=your_open_vsx_token
-./tools/build.sh
-```
+Um script pronto para isso está em `scripts/fix-wheezy-archive.sh`. Basta rodá‑lo **dentro do chroot** (`sudo lb chroot && ./scripts/fix-wheezy-archive.sh`).
 
-### 2. Build Kali ISO
+#### Solução a longo prazo
+* Migrar a build para uma release suportada (ex.: `bookworm` ou `bullseye`). Isso elimina a necessidade de usar o archive e garante pacotes com atualizações de segurança.
 
-```bash
-# Requires Docker with privileged mode
-docker build -t iso-swarm-builder -f tools/Dockerfile .
-docker run --privileged -v $(pwd)/output:/output iso-swarm-builder
-```
+--- (continua o restante do README) 
 
-### 3. Install in VS Code
+Como aplicar o patch no seu repositório
+# 1️⃣ Baixe o diff (copie o conteúdo acima) para um arquivo temporário
+cat > /tmp/patch.diff <<'EOF'
+# <-- cole aqui todo o diff acima -->
+EOF
 
-```bash
-# From Open-VSX (automatic in Trae.ai, Windsurf, Cursor)
-code --install-extension iso-swarm.personas
+# 2️⃣ No diretório raiz do seu projeto
+git apply /tmp/patch.diff
+git add scripts/fix-wheezy-archive.sh \
+        config/includes.chroot/etc/apt/apt.conf.d/99no-check-valid-until \
+        README.md
+git commit -m "fix(build): use archive.debian.org for wheezy & disable Check-Valid-Until"
 
-# Or direct VSIX
-code --install-extension iso-swarm-*.vsix
-```
+⚠️ Se preferir, pode simplesmente criar os arquivos manualmente com o conteúdo acima – o resultado será o mesmo.
 
-## 💬 Usage
+🚀 Passo‑a‑passo para gerar a ISO final
+Pré‑requisitos
 
-In VS Code chat panel:
+Debian/Ubuntu host com
+live-build
 
-```
-@swarm optimize this Rust code for Intel i3
-@swarm /coder implement binary search algorithm  
-@swarm /security analyze for vulnerabilities
-@swarm /architect design microservice system
-@swarm /analyst process this dataset
-```
+,
+debootstrap
 
-## 🧠 AI Models
+,
+xorriso
 
-| Persona | Models | Expertise | Size |
-|---------|--------|-----------|------|
-| `@coder` | 40 models | Rust, algorithms, optimization | 12GB |
-| `@analyst` | 40 models | Data analysis, statistics | 12GB |
-| `@architect` | 40 models | System design, scalability | 12GB |
-| `@security` | 40 models | Security, pentesting | 12GB |
-| `@optimizer` | 40 models | Performance, memory | 12GB |
+,
+wget
 
-**Total**: 200 models, ~60GB compressed to ~12GB via 4-bit GGUF
+,
+git
 
-## ⚡ Performance
+instalados.
+Pelo menos 8 GB de espaço livre (para o chroot + ISO).
+Conexão à internet (para baixar os pacotes do archive).
+1️⃣ Preparar o ambiente
+# Clone o repositório (se ainda não estiver local)
+git clone https://github.com/gersonvida12-hash/organizador-ia-windows.git
+cd organizador-ia-windows
 
-- **Memory Usage**: 1GB max (cgroup v2 enforced)
-- **CPU Usage**: Optimized for 2-core i3-7020U
-- **Latency**: <150ms/token average
-- **Desktop RAM**: ≤400MB with Niri + Waybar HUD
-- **Model Access**: 80% via memory pool, 20% disk cache
+# (Opcional) Crie um branch de trabalho
+git checkout -b fix-wheezy-404
 
-## 🎨 3D HUD Features
+2️⃣ Aplicar o patch (caso ainda não tenha feito)
+# Use o procedimento descrito acima ou copie os arquivos manualmente
+git apply /tmp/patch.diff   # se já salvou o diff
+git add .
+git commit -m "apply wheezy‑archive fix"
 
-- **Real-time Swarm Status**: Active models, memory usage
-- **Latency Visualization**: Color-coded performance indicators  
-- **Consensus Heatmap**: Neural network effect showing agreement
-- **Memory Pool**: Live monitoring of model loading/unloading
-- **Holographic UI**: WGSL shaders optimized for Intel HD 620
+3️⃣ Limpar o build anterior
+sudo lb clean --all
 
-## 📦 Distribution
+4️⃣ Bootstrap (cria o chroot base)
+sudo lb bootstrap --verbose 2>&1 | tee bootstrap.log
 
-### Open-VSX Registry
-- **URL**: https://open-vsx.org/extension/iso-swarm/personas
-- **Auto-Available In**: Trae.ai, Windsurf, Cursor, GitPod
-- **Direct Install**: `https://open-vsx.org/extension/iso-swarm/personas/install`
+5️⃣ Entrar no chroot e aplicar a correção
+sudo lb chroot
+# Dentro do chroot:
+./scripts/fix-wheezy-archive.sh
+# Saia do chroot:
+exit
 
-### ISO Distribution
-- **Size**: ≤10GB bootable ISO
-- **Type**: Persistent live system
-- **Security**: No LUKS, passwordless sudo
-- **Boot**: UEFI + Legacy BIOS support
+O que acontece aqui?
 
-## 🔧 Development
+O script faz backup de
+sources.list
 
-### Dependencies
+, aponta para
+archive.debian.org
 
-```bash
-# Rust toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+, desabilita a checagem de validade e executa
+apt-get update
 
-# Node.js for VS Code extension
-npm install
+.
+O arquivo
+config/includes.chroot/etc/apt/apt.conf.d/99no-check-valid-until
 
-# System packages (Kali Linux)
-apt install build-essential pkg-config sqlite3 zstd
-```
+garante que, em builds futuros, a configuração já esteja presente sem precisar rodar o script manualmente.
+6️⃣ (Opcional) Ajustar preseed/autoinstall para ABNT2, login automático, sudo sem senha, particionamento total
+Crie/edite
+config/package-lists/auto-install.list.chroot
 
-### Build Components
+(exemplo mínimo):
 
-```bash
-# Rust daemon (≤5MB binary)
-cd src/daemon && cargo build --release
+# auto‑install.list.chroot
+# teclado ABNT2
+keyboard-configuration   keyboard-configuration/layoutcode=br
+keyboard-configuration   keyboard-configuration/variantcode=abnt2
 
-# TypeScript extension  
-npm run compile
+# login automático (systemd‑service)
+systemd-sysv   systemd-sysv/enable=true
+# sudo sem senha
+sudo   sudoers.d/99_nopasswd   "solo ALL=(ALL) NOPASSWD: ALL"
 
-# Package for distribution
-npm run package
-```
+Obs. Ajuste conforme a sua necessidade; o live‑build já inclui hooks para
+preseed
 
-### Testing
+/
+autoinstall
 
-```bash
-# Test daemon
-./src/daemon/target/release/swarm-daemon
+.
 
-# Test extension in VS Code
-code --extensionDevelopmentPath=.
-```
+7️⃣ Build da imagem binária (ISO)
+sudo lb binary --verbose 2>&1 | tee binary.log
 
-## 📊 Monitoring
+Se tudo correr bem, o arquivo
+binary.hybrid.iso
 
-### Database Schema
-- **Models**: Registration, usage stats, performance
-- **Query History**: Request/response pairs for learning
-- **Memory Pool**: Real-time usage tracking
-- **Performance**: CPU, memory, latency metrics
+aparecerá em
+binary/
 
-### Real-time HUD
-- Active model count and memory usage
-- Query latency with 150ms target line
-- Consensus score visualization
-- Memory pool status and swap activity
+. Renomeie‑o:
 
-## 🎯 Architecture Goals
+mv binary/hybrid.iso debian-ia-4g-ptbr-v1.iso
 
-1. **Ultra-Low Latency**: Sub-150ms response times
-2. **Memory Efficiency**: 82% reduction via compression
-3. **CPU Optimization**: Designed for dual-core i3
-4. **GPU Minimal**: ≤48MB constant usage for HUD
-5. **Autonomous**: Zero-config deployment and updates
+8️⃣ Testar a ISO (opcional, mas recomendado)
+# QEMU (rápido)
+qemu-system-x86_64 -m 2048 -cdrom debian-ia-4g-ptbr-v1.iso -boot d
 
-## 📄 License
+Verifique:
 
-MIT License - See LICENSE file for details.
+idioma/teclado PT‑BR, layout ABNT2
+login automático como
+solo
 
-## 🤝 Contributing
+(senha vazia)
+sudo
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+sem senha (
+sudo -l
 
-## 📞 Support
+deve mostrar NOPASSWD)
+desktop pgLX rodando em Wayland
+chromium --enable-features=VaapiVideoDecoder
 
-- **Issues**: GitHub Issues
-- **Discord**: #iso-swarm channel
-- **Documentation**: `/docs` folder
-- **Performance**: Monitor via 3D HUD or `@swarm /status`
+usa VA‑API (
+glxinfo | grep "OpenGL renderer"
 
----
+deve mostrar sua GPU integrada)
+IA:
+phi3
 
-**Built for the next generation of AI-powered development environments** 🚀
+carregado via
+trae.ai-system
+
+(verifique processos ou UI do dashboard)
+9️⃣ Criar pendrive bootável (Ventoy‑ready)
+A ISO já está no formato hybrid (BIOS + UEFI). Basta copiar para o pendrive:
+
+# Identifique o dispositivo (ex.: /dev/sdX)
+sudo dd if=debian-ia-4g-ptbr-v1.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sync
+
+⚠️
+dd
+
+sobrescreve todo o disco; confirme o dispositivo correto!
+Se preferir usar Ventoy, basta colocar a ISO na partição do Ventoy – ele a detectará automaticamente.
+
+📋 Checklist final (para garantir que a ISO está pronta)
+✅	Item	Como validar
+1	Repositorios apontando para archive.debian.org	
+cat chroot/etc/apt/sources.list
+
+→ contém
+archive.debian.org
+
+2	Check‑Valid‑Until desabilitado	
+cat chroot/etc/apt/apt.conf.d/99no-check-valid-until
+
+→
+"false"
+
+3	Login automático	Boot → usuário
+solo
+
+logado sem senha
+4	Sudo sem senha	
+sudo -n true
+
+(não pede senha)
+5	Particionamento total	Instalação limpa apaga todas as partições (verifique no instalador)
+6	Desktop pgLX (Wayland)	
+echo $XDG_SESSION_TYPE
+
+→
+wayland
+
+7	Chromium VA‑API	
+chromium --enable-features=VaapiVideoDecoder
+
+→ reprodução de vídeo hardware‑accelerated
+8	IA local	Dashboard
+trae.ai-system
+
+aparece ao iniciar sessão
+9	Tema Ribon‑dark + Papirus + Plymouth animado	Tela de boot e login exibem os temas corretos
+10	Boot híbrido	Teste em BIOS e UEFI (ou use Ventoy)
+Se algum item falhar, abra o log correspondente (
+binary.log
+
+,
+bootstrap.log
+
+,
+chroot.log
+
+) e compartilhe as últimas linhas aqui para análise adicional.
+
+📦 Resumo rápido (para copiar‑colar no agent)
+# Aplicar patch
+git apply /tmp/patch.diff
+git add scripts/fix-wheezy-archive.sh \
+        config/includes.chroot/etc/apt/apt.conf.d/99no-check-valid-until \
+        README.md
+git commit -m "fix(build): use archive.debian.org for wheezy & disable Check-Valid-Until"
+
+# Build completo
+sudo lb clean --all
+sudo lb bootstrap
+sudo lb chroot   # entra no chroot
+./scripts/fix-wheezy-archive.sh
+exit
+sudo lb binary
+mv binary/hybrid.iso debian-ia-4g-ptbr-v1.iso
+
+Execute esses comandos no agent (ou no seu terminal) e, ao final, você terá a ISO pronta para gravar em pendrive e instalar em qualquer máquina com i3 / 4 GB RAM e vídeo integrado.

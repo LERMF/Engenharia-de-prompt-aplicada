@@ -1,0 +1,67 @@
+{
+  "composite_evals": {
+    "agent_bootstrap": {
+      "role": "System Bootstrap Agent",
+      "tools": [
+        "debian_config",
+        "kali_hybrid",
+        "memory_pool"
+      ],
+      "eval_metrics": [
+        "boot_time",
+        "memory_usage",
+        "stability"
+      ]
+    },
+    "agent_apps": {
+      "role": "Application Deployment Agent",
+      "tools": [
+        "package_manager",
+        "desktop_config",
+        "wayland_setup"
+      ],
+      "eval_metrics": [
+        "install_success",
+        "performance",
+        "compatibility"
+      ]
+    },
+    "agent_ai": {
+      "role": "AI Stack Agent",
+      "tools": [
+        "langchain_setup",
+        "crewai_config",
+        "llm_download"
+      ],
+      "eval_metrics": [
+        "inference_speed",
+        "memory_efficiency",
+        "accuracy"
+      ]
+    },
+    "agent_finalize": {
+      "role": "Finalization Agent",
+      "tools": [
+        "iso_build",
+        "swarm_daemon",
+        "integrity_check"
+      ],
+      "eval_metrics": [
+        "iso_size",
+        "boot_success",
+        "swarm_latency"
+      ]
+    }
+  },
+  "crewai_rag": {
+    "thread_safe": true,
+    "multi_agent": true,
+    "rag_enabled": true,
+    "memory_augmented": true
+  },
+  "langgraph_scalable": {
+    "autonomous_agents": true,
+    "frameworks": true,
+    "adaptive_routing": true
+  }
+}

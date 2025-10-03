@@ -1,0 +1,126 @@
+name: Build & Upload Debian ISO
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 480
+    env:
+      BUILD_DIR: ${{ github.workspace }}/debian-iso-build
+      OUTPUT_DIR: ${{ github.workspace }}/debian-iso-build/output
+      CACHE_DIR: ${{ github.workspace }}/debian-iso-build/cache
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect CPU cores
+        id: cpu-cores
+        run: echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+
+      - name: Show hardware info
+        run: |
+          echo "CPU info:"
+          lscpu
+          echo "Memória RAM:"
+          free -h
+          echo "Disco inicial:"
+          df -h
+
+      - name: Ensure scripts are executable
+        run: |
+          chmod +x debian-iso-build/*.sh
+          chmod -R +x debian-iso-build/agents
+
+      - name: Install build dependencies (multi-threaded)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            live-build debootstrap squashfs-tools xorriso isolinux syslinux-utils \
+            qemu-user-static curl unzip python3-pip gnupg
+
+      - name: Clean system before build
+        run: |
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+          sudo sync
+          df -h
+
+      - name: Check passwordless sudo
+        run: sudo -n true
+
+      - name: Build ISO (using max hardware)
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          mkdir -p "$OUTPUT_DIR" "$CACHE_DIR"
+          # Se quick-start.sh suportar -j, use máximo de núcleos
+          if grep -q 'make' quick-start.sh; then
+            sudo ./quick-start.sh -j${{ steps.cpu-cores.outputs.nproc }}
+          else
+            sudo ./quick-start.sh
+          fi
+          # Renomeia ISO para nome único por build
+          mv "$OUTPUT_DIR/debian.iso" "$OUTPUT_DIR/debian-${{ github.run_id }}.iso"
+
+      - name: Gerar SHA256 do ISO
+        run: |
+          sha256sum ${{ env.OUTPUT_DIR }}/debian-${{ github.run_id }}.iso > ${{ env.OUTPUT_DIR }}/debian-${{ github.run_id }}.iso.sha256
+
+      - name: Clean up after build
+        run: |
+          sudo apt-get clean
+          sudo rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+          if [ -d "${{ env.BUILD_DIR }}/work" ]; then
+            rm -rf "${{ env.BUILD_DIR }}/work/chroot"
+            rm -rf "${{ env.BUILD_DIR }}/build"
+          fi
+          sync
+          df -h
+
+      - name: Create GitHub Release (auto-tag)
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "iso-release-${{ github.run_id }}"
+          release_name: "Debian ISO Build ${{ github.run_id }}"
+          draft: false
+          prerelease: false
+
+      - name: Upload ISO to GitHub Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.OUTPUT_DIR }}/debian-${{ github.run_id }}.iso
+          asset_name: debian-${{ github.run_id }}.iso
+          asset_content_type: application/octet-stream
+
+      - name: Upload SHA256 to GitHub Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.OUTPUT_DIR }}/debian-${{ github.run_id }}.iso.sha256
+          asset_name: debian-${{ github.run_id }}.iso.sha256
+          asset_content_type: text/plain
+
+      - name: Upload ISO as workflow artifact (backup)
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: built-iso
+          path: ${{ env.OUTPUT_DIR }}/debian-${{ github.run_id }}.iso
+
+      - name: Upload SHA256 as workflow artifact
+        uses: actions/upload-art

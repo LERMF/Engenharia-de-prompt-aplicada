@@ -1,34 +1,48 @@
 {
-  "name": "iso-swarm",
-  "displayName": "ISO-SWARM Multi-Persona Chat",
-  "description": "200 mini-LLMs swarm chat participant for Kali Linux 6.12.38 with Intel HD 620",
-  "version": "1.0.0",
+  "name": "iso-swarm-hybrid",
+  "displayName": "ISO-SWARM Hybrid - AI OS Builder",
+  "description": "200 mini-LLMs swarm + Debian AI ISO builder with LangChain 1.0 and CrewAI integration",
+  "version": "2.0.0",
   "engines": {
     "vscode": "^1.93.0"
   },
-  "categories": ["Chat", "AI", "Machine Learning"],
-  "keywords": ["swarm", "llm", "rust", "kali", "personas"],
+  "categories": ["Chat", "AI", "Machine Learning", "Other"],
+  "keywords": ["swarm", "llm", "iso", "debian", "kali", "personas", "langchain", "crewai", "gguf"],
   "main": "./out/extension.js",
   "activationEvents": ["onStartupFinished"],
   "contributes": {
     "chatParticipants": [{
-      "id": "iso-swarm.personas",
+      "id": "iso-swarm.hybrid",
       "name": "swarm",
-      "fullName": "ISO-SWARM Personas",
+      "fullName": "ISO-SWARM Hybrid",
       "isSticky": true,
       "commands": [
-        {"name": "coder", "description": "Activate coding persona"},
-        {"name": "analyst", "description": "Activate data analysis persona"},
-        {"name": "architect", "description": "Activate system architect persona"},
-        {"name": "security", "description": "Activate security expert persona"},
-        {"name": "optimizer", "description": "Activate performance optimizer persona"}
+        {"name": "coder", "description": "Rust/Python coding with agent swarm"},
+        {"name": "analyst", "description": "Data analysis with CrewAI agents"},
+        {"name": "architect", "description": "System architecture with LangGraph"},
+        {"name": "security", "description": "Security analysis with specialized models"},
+        {"name": "optimizer", "description": "Performance optimization for low-resource systems"},
+        {"name": "builder", "description": "ISO build automation with 4-agent system"}
       ]
-    }]
+    }],
+    "commands": [
+      {
+        "command": "iso-swarm.buildISO",
+        "title": "Build Custom AI ISO",
+        "category": "ISO-SWARM"
+      },
+      {
+        "command": "iso-swarm.testISO",
+        "title": "Test ISO with QEMU",
+        "category": "ISO-SWARM"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "build:rust": "cd src/daemon && cargo build --release",
+    "build:iso": "bash tools/build-hybrid-iso.sh",
     "package": "vsce package",
     "publish:ovsx": "ovsx publish"
   },
@@ -40,6 +54,11 @@
     "ovsx": "^0.9.2"
   },
   "dependencies": {
-    "ws": "^8.14.0"
+    "ws": "^8.14.0",
+    "langchain": "^0.3.0",
+    "@langchain/community": "^0.3.0",
+    "@langchain/core": "^0.3.0",
+    "crewai": "^0.175.0",
+    "node-fetch": "^3.3.2"
   }
 }
