@@ -5,7 +5,7 @@
         "name": "Hybrid-ISO-SWARM-v1.3",
         "version": "1.3.0",
         "description": "Ultimate Hybrid: ISO-SWARM + AI Build System with LangChain 1.0 Alpha",
-        "date": "2025-10-03T02:08:32.007225",
+        "date": "2025-10-03T02:16:20.547866",
         "trends_2025": [
           "LangChain 1.0 Alpha: Composite evals/API keys robust agents",
           "CrewAI v0.175.0: RAG/thread-safe multi-agent collaboration",
