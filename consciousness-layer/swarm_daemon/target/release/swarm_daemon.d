@@ -1,0 +1,1 @@
+/home/luiz/sistema-operacional-novo/Engenharia-de-prompt-aplicada/consciousness-layer/swarm_daemon/target/release/swarm_daemon: /home/luiz/sistema-operacional-novo/Engenharia-de-prompt-aplicada/consciousness-layer/swarm_daemon/src/main.rs

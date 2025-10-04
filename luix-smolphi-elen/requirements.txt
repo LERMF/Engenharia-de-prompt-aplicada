@@ -1,0 +1,13 @@
+# LUIX-SMOLPHI-ELEN Requirements
+# Python dependencies for AI agents and orchestration
+
+# Async HTTP for Gemini API
+aiohttp>=3.9.0
+
+# Async SQLite for checkpoints
+aiosqlite>=0.19.0
+
+# Optional: For development/testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0

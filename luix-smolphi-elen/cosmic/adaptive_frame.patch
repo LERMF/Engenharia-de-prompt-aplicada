@@ -1,0 +1,26 @@
+diff --git a/cosmic-comp/src/shell/mod.rs b/cosmic-comp/src/shell/mod.rs
+index a1b2c3d..e4f5g6h 100644
+--- a/cosmic-comp/src/shell/mod.rs
++++ b/cosmic-comp/src/shell/mod.rs
+@@ -45,6 +45,7 @@ pub struct Shell {
+     pub workspaces: WorkspaceSet,
+     pub overview_mode: OverviewMode,
+     pub theme: cosmic::Theme,
++    pub adaptive_frame_delta: AdaptiveFrameDelta,
+ }
+ 
+ impl Shell {
+@@ -65,6 +66,7 @@ impl Shell {
+             workspaces: WorkspaceSet::new(&config, theme.clone()),
+             overview_mode: OverviewMode::None,
+             theme,
++            adaptive_frame_delta: AdaptiveFrameDelta::new(),
+         }
+     }
+ 
+@@ -142,7 +144,16 @@ impl Shell {
+     }
+ 
+     pub fn render(&mut self, renderer: &mut GlowRenderer, age: usize) {
+-        // Standard rendering path
++        // Adaptive frame delta optimization
